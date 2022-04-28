@@ -32,6 +32,8 @@ import org.json.JSONObject;
 import org.json.JSONArray;
 import org.json.CDL;
 
+import java.util.List;
+
 /**
  * Tests for CDL.java.
  * CDL provides an application level API, but it is not used by the
@@ -230,17 +232,6 @@ public class CDLTest {
     }
 
     /**
-     * Create a JSONArray from string containing only whitespace and commas
-     */
-    @Test
-    public void emptyLinesToJSONArray() {
-        String str = " , , , \n , , , ";
-        JSONArray jsonArray = CDL.toJSONArray(str);
-        assertNull("JSONArray should be null for no content",
-                jsonArray);
-    }
-
-    /**
      * call toString with a null array
      */
     @Test
@@ -291,6 +282,22 @@ public class CDLTest {
         JSONArray jsonArray = CDL.toJSONArray(this.lines);
         JSONArray expectedJsonArray = new JSONArray(this.expectedLines);
         Util.compareActualVsExpectedJsonArrays(jsonArray, expectedJsonArray);
+    }
+
+    /**
+     * Should not omit the last row when the CSV doesn't end with a new line
+     */
+    @Test
+    public void doNotSkipLines(){
+        final String csv_without_new_line = "Number,Name,Empty\n" +
+                "1,Alice,not\n" +
+                "2,Jacek,empty\n" +
+                "3,Bob,";
+
+        List<Object> jsonObjects = CDL.toJSONArray(csv_without_new_line).toList();
+
+        assertNotNull(jsonObjects);
+        assertEquals(3, jsonObjects.size());
     }
 
     /**
